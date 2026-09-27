@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dieline Layout - Nesha Thevadass Farewell Medicine Outer Packaging</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- html2canvas & jsPDF CDNs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <!-- QRCode.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <style>
+    /* Exact A4 Dimensions at 96 DPI: 210mm x 297mm = ~794px x 1123px */
+    .a4-page {
+      width: 794px;
+      height: 1123px;
+      padding: 30px;
+      background-color: #ffffff;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      position: relative;
+      margin: 0 auto;
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* Print styles */
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+
+    @media print {
+      body {
+        background: none !important;
+        padding: 0 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .a4-page {
+        box-shadow: none !important;
+        margin: 0 !important;
+        width: 210mm !important;
+        height: 297mm !important;
+      }
+    }
+
+    /* Crosshair alignment marks */
+    .crop-mark {
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      border-color: #000000;
+      pointer-events: none;
+    }
+
+    /* QR code container styling */
+    #qr-code-container {
+      width: 60px;
+      height: 60px;
+    }
+    #qr-code-container img,
+    #qr-code-container canvas {
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen py-8 text-slate-800">
+
+  <!-- Control Bar / Interactive Toolbar -->
+  <div class="max-w-4xl mx-auto mb-6 p-4 bg-white rounded-xl shadow-md flex flex-wrap items-center justify-between gap-4 no-print">
+    <div>
+      <h1 class="text-xl font-bold text-slate-800">Nesha Thevadass Farewell Gift Box Dieline</h1>
+      <p class="text-sm text-slate-500">Pharma Outer Box Layout (Reverse Tuck End, A4 Sheet Compatible) — Monochrome Edition</p>
+    </div>
+
+    <div class="flex items-center gap-3 flex-wrap">
+      <button onclick="window.print()" class="px-4 py-2 bg-black hover:bg-slate-800 text-white text-sm font-semibold rounded-lg shadow transition">
+        🖨️ Print Directly
+      </button>
+      <button id="download-btn" onclick="generatePDF()" class="px-4 py-2 bg-black hover:bg-slate-800 text-white text-sm font-semibold rounded-lg shadow transition flex items-center gap-2">
+        <span>📥 Download PDF (High-Res)</span>
+      </button>
+      <button onclick="downloadHTML()" class="px-4 py-2 bg-slate-700 hover:bg-slate-800 text-white text-sm font-semibold rounded-lg shadow transition">
+        📄 Download .html
+      </button>
+      <button onclick="downloadTXT()" class="px-4 py-2 bg-slate-500 hover:bg-slate-600 text-white text-sm font-semibold rounded-lg shadow transition">
+        📝 Download .txt
+      </button>
+    </div>
+  </div>
+
+  <!-- Instruction Notice -->
+  <div class="max-w-4xl mx-auto mb-4 p-3 bg-slate-100 border border-slate-300 text-slate-700 rounded-lg text-xs flex justify-between items-center no-print">
+    <span>💡 <strong>Tip:</strong> Click on the editable fields inside the box dieline to personalise the message before downloading!</span>
+    <span class="font-mono text-slate-500">Outer Box: W:40mm x D:25mm x H:140mm</span>
+  </div>
+
+  <!-- Printable A4 Canvas Container -->
+  <div id="a4-container" class="a4-page relative overflow-hidden flex flex-col justify-between">
+
+    <!-- Crop Marks for Print Precision -->
+    <div class="crop-mark top-2 left-2 border-t-2 border-l-2"></div>
+    <div class="crop-mark top-2 right-2 border-t-2 border-r-2"></div>
+    <div class="crop-mark bottom-2 left-2 border-b-2 border-l-2"></div>
+    <div class="crop-mark bottom-2 right-2 border-b-2 border-r-2"></div>
+
+    <!-- Header / Legend -->
+    <div class="flex justify-between items-start border-b border-black pb-2 mb-2 text-xs">
+      <div>
+        <div class="font-bold text-black">DIELINE TEMPLATE: REVERSE TUCK END (RTE)</div>
+        <div class="text-[10px] text-slate-600">Fit Target: A4 (210 x 297 mm) | Caliper: 0.5 mm</div>
+      </div>
+      <div class="flex gap-4 text-[10px] font-semibold text-black">
+        <div class="flex items-center gap-1">
+          <span class="w-4 h-0 border-b-2 border-black inline-block"></span> Cut Line
+        </div>
+        <div class="flex items-center gap-1">
+          <span class="w-4 h-0 border-b border-dashed border-slate-500 inline-block"></span> Crease/Fold
+        </div>
+      </div>
+    </div>
+
+    <!-- DIELINE CANVAS CONTAINER (Centering flat layout) -->
+    <div class="flex-grow flex items-center justify-center relative">
+
+      <!-- ============================================================
+           FLAT UNFOLDED BOX — MONOCHROME, NO WHITE-ON-BLACK TEXT
+           Scale: 1 mm = 3.78 px   (220 mm tall x 140 mm wide)
+           ============================================================ -->
+      <div class="relative font-sans text-black" style="width: 530px; height: 833px;">
+
+        <!-- ============ 1. TOP CLOSURE SECTION ============ -->
+
+        <!-- Top Tuck Flap -->
+        <div class="absolute bg-white flex items-center justify-center text-[9px] text-slate-500 select-none
+                    border-t-2 border-l-2 border-r-2 border-black rounded-t-xl"
+             style="left: 38px; top: 0px; width: 151px; height: 57px;">
+          Top Tuck Flap (15mm)
+        </div>
+
+        <!-- Top Closure Panel (attached to FRONT panel W1) — LIGHT BACKGROUND -->
+        <div class="absolute bg-slate-200 text-black flex flex-col justify-center items-center px-2 text-center
+                    border-t border-dashed border-slate-500 border-l-2 border-r-2 border-black"
+             style="left: 38px; top: 57px; width: 151px; height: 95px;">
+          <div class="text-[10px] font-bold tracking-wider uppercase">Farewellin 500mg</div>
+          <div class="text-[8px] text-slate-700">Open For New Adventures</div>
+        </div>
+
+        <!-- Top Dust Flap (attached to SIDE panel D1) -->
+        <div class="absolute bg-slate-100 flex items-center justify-center text-[8px] text-slate-500
+                    border-t-2 border-l-2 border-r-2 border-black rounded-t-md"
+             style="left: 189px; top: 81px; width: 95px; height: 71px;">
+          <span class="rotate-90">Dust</span>
+        </div>
+
+        <!-- Top Dust Flap (attached to SIDE panel D2) -->
+        <div class="absolute bg-slate-100 flex items-center justify-center text-[8px] text-slate-500
+                    border-t-2 border-l-2 border-r-2 border-black rounded-t-md"
+             style="left: 435px; top: 81px; width: 95px; height: 71px;">
+          <span class="-rotate-90">Dust</span>
+        </div>
+
+
+        <!-- ============ 2. MAIN BODY PANELS (140mm / 529px) ============ -->
+
+        <!-- GLUE FLAP (10mm) -->
+        <div class="absolute bg-slate-100 flex items-center justify-center
+                    border-t-2 border-l-2 border-b-2 border-black"
+             style="left: 0px; top: 152px; width: 38px; height: 529px;">
+          <div class="rotate-90 text-[10px] font-mono text-black tracking-widest uppercase whitespace-nowrap">Glue Flap (10mm)</div>
+        </div>
+
+        <!-- PANEL 1: FRONT MAIN PANEL (40mm) -->
+        <div class="absolute bg-white flex flex-col justify-between p-3
+                    border-t border-dashed border-slate-500
+                    border-l border-dashed border-slate-500
+                    border-r border-dashed border-slate-500
+                    border-b-2 border-black"
+             style="left: 38px; top: 152px; width: 151px; height: 529px;">
+
+          <!-- Top Rx Header -->
+          <div>
+            <div class="flex justify-between items-start">
+              <span class="text-2xl font-black text-black leading-none">Rx</span>
+              <span class="text-[8px] font-bold bg-slate-200 text-black px-1.5 py-0.5 rounded">NESHA THEVADASS</span>
+            </div>
+            <div class="mt-3 border-b-2 border-black pb-1">
+              <h2 class="text-xl font-black text-black tracking-tight leading-none">Farewellin</h2>
+              <p class="text-[10px] font-bold text-slate-700">500mg • Non-Replaceable Edition</p>
+            </div>
+          </div>
+
+          <!-- Active Ingredients / Personal Touch -->
+          <div class="my-auto space-y-2">
+            <div class="bg-slate-100 p-2 rounded border border-slate-300">
+              <div class="text-[9px] font-bold text-black uppercase">Active Ingredients:</div>
+              <ul class="text-[8px] text-slate-700 list-disc leading-tight pl-3 mt-1">
+                <li>100% Pure Dedication</li>
+                <li>Unmatched Teammate Spirit</li>
+                <li>Endless Good Memories</li>
+              </ul>
+            </div>
+
+            <div class="text-[9px]">
+              <span class="font-bold text-black">Patient Name:</span>
+              <div class="font-bold text-black text-sm border-b border-slate-400 outline-none" contenteditable="true">Nesha Thevadass</div>
+            </div>
+
+            <div class="text-[8px] text-slate-600 italic leading-tight">
+              *Warning: May cause acute nostalgia, sudden coffee breaks, and extreme success in future endeavors.
+            </div>
+          </div>
+
+          <!-- Bottom Barcode & Meta — standard black bars on white -->
+          <div class="border-t border-black pt-2">
+            <div class="w-full h-7 bg-white border border-black flex items-center justify-around px-1">
+              <div class="bg-black w-1 h-full"></div><div class="bg-black w-0.5 h-full"></div><div class="bg-black w-1.5 h-full"></div><div class="bg-black w-0.5 h-full"></div><div class="bg-black w-1 h-full"></div><div class="bg-black w-2 h-full"></div><div class="bg-black w-0.5 h-full"></div><div class="bg-black w-1 h-full"></div>
+            </div>
+            <div class="text-[7px] text-center font-mono mt-0.5 text-slate-700">FAR-2026-NESHA-THEVADASS</div>
+          </div>
+        </div>
+
+        <!-- PANEL 2: RIGHT SIDE PANEL (Depth 25mm) -->
+        <div class="absolute bg-slate-50 flex flex-col justify-between p-2 text-center
+                    border-t border-dashed border-slate-500
+                    border-r border-dashed border-slate-500
+                    border-b border-dashed border-slate-500"
+             style="left: 189px; top: 152px; width: 95px; height: 529px;">
+
+          <div class="mt-2">
+            <div class="text-[9px] font-bold text-black uppercase">Directions</div>
+            <p class="text-[7.5px] text-slate-700 mt-1 leading-snug">Take 1 capsule of positivity whenever you miss the team.</p>
+          </div>
+
+          <div class="my-auto rotate-90 transform origin-center whitespace-nowrap">
+            <span class="text-xs font-black text-slate-300 tracking-widest uppercase">FAREWELL GIFT</span>
+          </div>
+
+          <div class="text-[7.5px] font-mono text-left bg-white p-1.5 border border-slate-400 rounded leading-tight space-y-0.5 text-black">
+            <div><span class="font-bold">BNO:</span> 260930</div>
+            <div><span class="font-bold">MFG:</span> 20 May 2025</div>
+            <div><span class="font-bold">EXP:</span> 05 Oct 2026</div>
+          </div>
+        </div>
+
+        <!-- PANEL 3: BACK PANEL (40mm) -->
+        <div class="absolute bg-white flex flex-col justify-between p-3
+                    border-t-2 border-black
+                    border-r border-dashed border-slate-500
+                    border-b border-dashed border-slate-500"
+             style="left: 284px; top: 152px; width: 151px; height: 529px;">
+
+          <div class="border-b border-black pb-1">
+            <div class="text-[10px] font-bold text-black">SPECIAL PRESCRIPTION</div>
+            <div class="text-[8px] text-slate-600">Farewell Wishes & Message</div>
+          </div>
+
+          <!-- Interactive Editable Message Box -->
+          <div class="my-2 flex-grow bg-slate-50 p-2 border border-slate-300 rounded text-[8.5px] text-slate-800 leading-relaxed outline-none overflow-hidden" contenteditable="true">
+            <strong>Dear Nesha Thevadass,</strong><br>
+            Thank you for being an extraordinary colleague and friend! Your hard work and cheerful presence made every project enjoyable.<br><br>
+            We wish you the absolute best in your next chapter! Stay in touch!
+          </div>
+
+          <!-- QR Code Section -->
+          <div class="flex flex-col items-center justify-center my-2">
+            <div id="qr-code-container" class="border border-black p-0.5 bg-white"></div>
+            <div class="text-[6px] text-center text-slate-600 mt-1 leading-tight">
+              Scan for digital farewell card
+            </div>
+          </div>
+
+          <div class="text-[7px] text-slate-500 border-t border-slate-400 pt-1">
+            Manufactured by: The Team Works Inc.<br>
+            Storage: Keep in a warm heart at all times.
+          </div>
+        </div>
+
+        <!-- PANEL 4: LEFT SIDE PANEL (Depth 25mm) -->
+        <div class="absolute bg-slate-50 flex flex-col justify-between p-2 text-center
+                    border-t border-dashed border-slate-500
+                    border-r-2 border-black
+                    border-b border-dashed border-slate-500"
+             style="left: 435px; top: 152px; width: 95px; height: 529px;">
+
+          <div class="mt-2">
+            <div class="text-[9px] font-bold text-black uppercase">Caution</div>
+            <p class="text-[7.5px] text-slate-700 mt-1 leading-snug">Side effects may include success, happiness, and rapid career growth.</p>
+          </div>
+
+          <div class="my-auto -rotate-90 transform origin-center whitespace-nowrap">
+            <span class="text-xs font-black text-slate-400 tracking-widest uppercase">GOOD LUCK NESHA!</span>
+          </div>
+
+          <div class="text-[7px] text-slate-500">
+            Qty: 1 Special Friend<br>
+            Ref: 2026-NESHA
+          </div>
+        </div>
+
+
+        <!-- ============ 3. BOTTOM CLOSURE SECTION ============ -->
+
+        <!-- Bottom Dust Flap (attached to SIDE panel D1) -->
+        <div class="absolute bg-slate-100 flex items-center justify-center text-[8px] text-slate-500
+                    border-l-2 border-r-2 border-b-2 border-black rounded-b-md"
+             style="left: 189px; top: 681px; width: 95px; height: 71px;">
+          Dust Flap
+        </div>
+
+        <!-- Bottom Dust Flap (attached to SIDE panel D2) -->
+        <div class="absolute bg-slate-100 flex items-center justify-center text-[8px] text-slate-500
+                    border-l-2 border-r-2 border-b-2 border-black rounded-b-md"
+             style="left: 435px; top: 681px; width: 95px; height: 71px;">
+          <span class="rotate-90">Dust</span>
+        </div>
+
+        <!-- Bottom Closure Panel (attached to BACK panel W2) — LIGHT BACKGROUND -->
+        <div class="absolute bg-slate-200 text-black flex flex-col justify-center items-center px-2 text-center
+                    border-l-2 border-r-2 border-black
+                    border-b border-dashed border-slate-500"
+             style="left: 284px; top: 681px; width: 151px; height: 95px;">
+          <div class="text-[10px] font-bold tracking-wider uppercase">Farewellin 500mg</div>
+          <div class="text-[8px] text-slate-700">Batch #260930</div>
+        </div>
+
+        <!-- Bottom Tuck Flap -->
+        <div class="absolute bg-white flex items-center justify-center text-[9px] text-slate-500 select-none
+                    border-l-2 border-r-2 border-b-2 border-black rounded-b-xl"
+             style="left: 284px; top: 776px; width: 151px; height: 57px;">
+          Bottom Tuck Flap (15mm)
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Footer Specs Legend -->
+    <div class="border-t border-black pt-2 flex justify-between items-center text-[9px] text-slate-700 font-mono">
+      <div>DIMENSIONS: 40 (W) x 25 (D) x 140 (H) mm</div>
+      <div>BATCH: 260930 | MFG: 20/05/2025 | EXP: 05/10/2026</div>
+      <div>REVERSE TUCK END (RTE)</div>
+    </div>
+
+  </div>
+
+  <!-- PDF / Download Scripts -->
+  <script>
+    /* ---------- QR Code Generation ---------- */
+    document.addEventListener('DOMContentLoaded', function() {
+      new QRCode(document.getElementById("qr-code-container"), {
+        text: "https://firdaus-abdullah.github.io/Izzah-Farewell/",
+        width: 60,
+        height: 60,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    });
+
+    /* ---------- High-Resolution PDF Generation ---------- */
+    async function generatePDF() {
+      const btn = document.getElementById('download-btn');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '⏳ Generating High-Res PDF...';
+      btn.disabled = true;
+
+      try {
+        const { jsPDF } = window.jspdf;
+        const element = document.getElementById('a4-container');
+
+        // Render at 4x scale (~384 DPI) for crisp text and lines
+        const canvas = await html2canvas(element, {
+          scale: 4,
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#ffffff',
+          windowWidth: element.scrollWidth,
+          windowHeight: element.scrollHeight
+        });
+
+        // Use PNG (lossless) instead of JPEG for maximum sharpness
+        const imgData = canvas.toDataURL('image/png');
+
+        // A4 portrait, mm units
+        const pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4',
+          compress: true
+        });
+
+        const pdfWidth  = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+
+        // Add with high-quality image compression setting
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
+        pdf.save('Nesha_Thevadass_Farewell_Packaging_Dieline.pdf');
+
+      } catch (err) {
+        alert('Error generating PDF: ' + err.message);
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    }
+
+    /* ---------- Download as HTML or TXT ---------- */
+    function downloadFile(content, filename, mimeType) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function downloadHTML() {
+      const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+      downloadFile(html, 'Nesha_Thevadass_Farewell_Dieline.html', 'text/html');
+    }
+
+    function downloadTXT() {
+      const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+      downloadFile(html, 'Nesha_Thevadass_Farewell_Dieline.txt', 'text/plain');
+    }
+  </script>
+</body>
+          </html>
