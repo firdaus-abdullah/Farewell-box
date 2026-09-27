@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dieline Layout - Ali Farewell Medicine Outer Packaging</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- html2canvas & jsPDF CDNs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    /* Exact A4 Dimensions at 96 DPI: 210mm x 297mm = ~794px x 1123px */
+    .a4-page {
+      width: 794px;
+      height: 1123px;
+      padding: 30px;
+      background-color: #ffffff;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      position: relative;
+      margin: 0 auto;
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    /* Print styles */
+    @media print {
+      body {
+        background: none !important;
+        padding: 0 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .a4-page {
+        box-shadow: none !important;
+        margin: 0 !important;
+        width: 210mm !important;
+        height: 297mm !important;
+      }
+    }
+
+    /* Cut and Crease lines */
+    .dieline-cut {
+      border: 1.5px solid #dc2626; /* Solid red for cut */
+    }
+    .dieline-fold {
+      border: 1px dashed #2563eb; /* Dashed blue for folds */
+    }
+    
+    /* Crosshair alignment marks */
+    .crop-mark {
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      border-color: #94a3b8;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen py-8 text-slate-800">
+
+  <!-- Control Bar / Interactive Toolbar -->
+  <div class="max-w-4xl mx-auto mb-6 p-4 bg-white rounded-xl shadow-md flex flex-wrap items-center justify-between gap-4 no-print">
+    <div>
+      <h1 class="text-xl font-bold text-slate-800">Ali's Farewell Gift Box Dieline</h1>
+      <p class="text-sm text-slate-500">Pharma Outer Box Layout (Reverse Tuck End, A4 Sheet Compatible)</p>
+    </div>
+    
+    <div class="flex items-center gap-3">
+      <button onclick="window.print()" class="px-4 py-2 bg-slate-700 hover:bg-slate-800 text-white text-sm font-semibold rounded-lg shadow transition">
+        🖨️ Print Directly
+      </button>
+      <button id="download-btn" onclick="generatePDF()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow transition flex items-center gap-2">
+        <span>📥 Download PDF (A4)</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Instruction Notice -->
+  <div class="max-w-4xl mx-auto mb-4 p-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-lg text-xs flex justify-between items-center no-print">
+    <span>💡 <strong>Tip:</strong> Click on the blue text fields inside the box dieline to edit personal messages or wish notes before downloading!</span>
+    <span class="font-mono text-slate-500">Outer Box: W:40mm x D:25mm x H:140mm</span>
+  </div>
+
+  <!-- Printable A4 Canvas Container -->
+  <div id="a4-container" class="a4-page relative overflow-hidden flex flex-col justify-between">
+    
+    <!-- Crop Marks for Print Precision -->
+    <div class="crop-mark top-2 left-2 border-t-2 border-l-2"></div>
+    <div class="crop-mark top-2 right-2 border-t-2 border-r-2"></div>
+    <div class="crop-mark bottom-2 left-2 border-b-2 border-l-2"></div>
+    <div class="crop-mark bottom-2 right-2 border-b-2 border-r-2"></div>
+
+    <!-- Header / Legend -->
+    <div class="flex justify-between items-start border-b pb-2 mb-2 text-xs">
+      <div>
+        <div class="font-bold text-slate-700">DIELINE TEMPLATE: REVERSE TUCK END (RTE)</div>
+        <div class="text-[10px] text-slate-500">Fit Target: A4 (210 x 297 mm) | Caliper: 0.5 mm</div>
+      </div>
+      <div class="flex gap-4 text-[10px] font-semibold">
+        <div class="flex items-center gap-1">
+          <span class="w-4 h-0 border-b-2 border-red-600 inline-block"></span> Cut Line
+        </div>
+        <div class="flex items-center gap-1">
+          <span class="w-4 h-0 border-b border-dashed border-blue-600 inline-block"></span> Crease/Fold
+        </div>
+      </div>
+    </div>
+
+    <!-- DIELINE CANVAS CONTAINER (Centering flat layout) -->
+    <div class="flex-grow flex items-center justify-center relative">
+      
+      <!-- FLAT UNFOLDED BOX CONTAINER -->
+      <!-- 
+        Scaling factor: 1mm ≈ 3.78px 
+        Height breakdown (mm): 15 (Tuck) + 25 (Top Closure) + 140 (Body) + 25 (Bottom Closure) + 15 (Tuck) = 220mm total (~830px)
+        Width breakdown (mm): 10 (Glue Flap) + 40 (Side A) + 25 (Depth 1) + 40 (Side B) + 25 (Depth 2) = 140mm total (~530px)
+      -->
+      <div class="relative font-sans text-slate-800" style="width: 530px; height: 830px;">
+        
+        <!-- ================= 1. TOP CLOSURE SECTION ================= -->
+        <!-- Top Tuck Flap (Attaches to Front Panel W1) -->
+        <div class="absolute border-t-2 border-l-2 border-r-2 border-red-600 rounded-t-xl bg-slate-50 flex items-center justify-center text-[9px] text-slate-400 select-none"
+             style="top: 0px; left: 38px; width: 150px; height: 56px;">
+          Top Tuck Flap (15mm)
+        </div>
+
+        <!-- Top Panel Closure (Depth D1) -->
+        <div class="absolute border-l-2 border-r-2 border-red-600 border-b border-dashed border-blue-600 bg-teal-800 text-white flex flex-col justify-center items-center px-2 text-center"
+             style="top: 56px; left: 38px; width: 150px; height: 95px;">
+          <div class="text-[10px] font-bold tracking-wider uppercase">Farewellin 500mg</div>
+          <div class="text-[8px] text-teal-200">Open For New Adventures</div>
+        </div>
+
+        <!-- Top Dust Flap 1 (Left of Top Closure) -->
+        <div class="absolute border-t-2 border-l-2 border-b-2 border-red-600 bg-slate-100 flex items-center justify-center text-[8px] text-slate-400"
+             style="top: 80px; left: 0px; width: 38px; height: 71px; border-top-left-radius: 8px; border-bottom-left-radius: 8px;">
+          <span class="rotate-90">Dust</span>
+        </div>
+
+        <!-- Top Dust Flap 2 (Right of Top Closure) -->
+        <div class="absolute border-t-2 border-r-2 border-b-2 border-red-600 bg-slate-100 flex items-center justify-center text-[8px] text-slate-400"
+             style="top: 80px; left: 188px; width: 95px; height: 71px; border-top-right-radius: 8px; border-bottom-right-radius: 8px;">
+          Dust Flap
+        </div>
+
+
+        <!-- ================= 2. MAIN BODY PANELS (HEIGHT = 140mm / 529px) ================= -->
+        
+        <!-- GLUE FLAP (10mm wide) -->
+        <div class="absolute border-t-2 border-l-2 border-b-2 border-red-600 border-r border-dashed border-blue-600 bg-amber-50/50 flex items-center justify-center"
+             style="top: 151px; left: 0px; width: 38px; height: 529px;">
+          <div class="rotate-90 text-[10px] font-mono text-amber-700 tracking-widest uppercase">GLUE FLAP (10mm)</div>
+        </div>
+
+        <!-- PANEL 1: FRONT MAIN PANEL (40mm) -->
+        <div class="absolute border-r border-dashed border-blue-600 bg-white flex flex-col justify-between p-3 border-t border-dashed border-blue-600"
+             style="top: 151px; left: 38px; width: 150px; height: 529px;">
+          
+          <!-- Top Rx Header -->
+          <div>
+            <div class="flex justify-between items-start">
+              <span class="text-2xl font-black text-teal-700 leading-none">Rx</span>
+              <span class="text-[8px] font-bold bg-teal-100 text-teal-800 px-1.5 py-0.5 rounded">ONLY FOR ALI</span>
+            </div>
+            <div class="mt-3 border-b-2 border-teal-600 pb-1">
+              <h2 class="text-xl font-black text-slate-900 tracking-tight leading-none">Farewellin</h2>
+              <p class="text-[10px] font-bold text-teal-600">500mg • Non-Replaceable Edition</p>
+            </div>
+          </div>
+
+          <!-- Active Ingredients / Personal Touch -->
+          <div class="my-auto space-y-2">
+            <div class="bg-teal-50 p-2 rounded border border-teal-100">
+              <div class="text-[9px] font-bold text-teal-900 uppercase">Active Ingredients:</div>
+              <ul class="text-[8px] text-slate-600 list-disc leading-tight pl-3 mt-1">
+                <li>100% Pure Dedication</li>
+                <li>Unmatched Teammate Spirit</li>
+                <li>Endless Good Memories</li>
+              </ul>
+            </div>
+
+            <div class="text-[9px]">
+              <span class="font-bold text-slate-700">Patient Name:</span>
+              <div class="font-bold text-teal-800 text-sm border-b border-slate-300 outline-none" contenteditable="true">Ali</div>
+            </div>
+
+            <div class="text-[8px] text-slate-500 italic leading-tight">
+              *Warning: May cause acute nostalgia, sudden coffee breaks, and extreme success in future endeavors.
+            </div>
+          </div>
+
+          <!-- Bottom Barcode & Meta -->
+          <div class="border-t pt-2">
+            <!-- Simulated Barcode -->
+            <div class="w-full h-7 bg-slate-800 flex items-center justify-around px-1">
+              <div class="bg-white w-1 h-full"></div><div class="bg-white w-0.5 h-full"></div><div class="bg-white w-1.5 h-full"></div><div class="bg-white w-0.5 h-full"></div><div class="bg-white w-1 h-full"></div><div class="bg-white w-2 h-full"></div><div class="bg-white w-0.5 h-full"></div><div class="bg-white w-1 h-full"></div>
+            </div>
+            <div class="text-[7px] text-center font-mono mt-0.5 text-slate-500">FAR-2024-ALI-FAREWELL</div>
+          </div>
+        </div>
+
+        <!-- PANEL 2: RIGHT SIDE PANEL (Depth 25mm) -->
+        <div class="absolute border-r border-dashed border-blue-600 bg-slate-50 flex flex-col justify-between p-2 text-center border-t border-dashed border-blue-600"
+             style="top: 151px; left: 188px; width: 95px; height: 529px;">
+          
+          <div class="mt-2">
+            <div class="text-[9px] font-bold text-teal-800 uppercase">Directions</div>
+            <p class="text-[7.5px] text-slate-600 mt-1 leading-snug">Take 1 capsule of positivity whenever you miss the team.</p>
+          </div>
+
+          <div class="my-auto rotate-90 transform origin-center whitespace-nowrap">
+            <span class="text-xs font-black text-slate-300 tracking-widest uppercase">FAREWELL GIFT</span>
+          </div>
+
+          <!-- Batch & Dates Metadata -->
+          <div class="text-[7.5px] font-mono text-left bg-white p-1.5 border rounded leading-tight space-y-0.5">
+            <div><span class="font-bold">BNO:</span> 260930</div>
+            <div><span class="font-bold">MFG:</span> 01 Aug 2024</div>
+            <div><span class="font-bold">EXP:</span> 12 Oct 2026</div>
+          </div>
+        </div>
+
+        <!-- PANEL 3: BACK PANEL (40mm) -->
+        <div class="absolute border-r border-dashed border-blue-600 bg-white flex flex-col justify-between p-3 border-t border-dashed border-blue-600"
+             style="top: 151px; left: 283px; width: 150px; height: 529px;">
+          
+          <div class="border-b pb-1">
+            <div class="text-[10px] font-bold text-slate-800">SPECIAL PRESCRIPTION</div>
+            <div class="text-[8px] text-teal-600">Farewell Wishes & Message</div>
+          </div>
+
+          <!-- Interactive Editable Message Box -->
+          <div class="my-2 flex-grow bg-teal-50/50 p-2 border border-teal-100 rounded text-[8.5px] text-slate-700 leading-relaxed outline-none overflow-hidden" contenteditable="true">
+            <strong>Dear Ali,</strong><br>
+            Thank you for being an extraordinary colleague and friend! Your hard work and cheerful presence made every project enjoyable.<br><br>
+            We wish you the absolute best in your next chapter! Stay in touch!
+          </div>
+
+          <div class="text-[7px] text-slate-400 border-t pt-1">
+            Manufactured by: The Team Works Inc.<br>
+            Storage: Keep in a warm heart at all times.
+          </div>
+        </div>
+
+        <!-- PANEL 4: LEFT SIDE PANEL (Depth 25mm) -->
+        <div class="absolute border-r-2 border-red-600 bg-slate-50 flex flex-col justify-between p-2 text-center border-t border-dashed border-blue-600"
+             style="top: 151px; left: 433px; width: 95px; height: 529px;">
+          
+          <div class="mt-2">
+            <div class="text-[9px] font-bold text-teal-800 uppercase">Caution</div>
+            <p class="text-[7.5px] text-slate-600 mt-1 leading-snug">Side effects may include success, happiness, and rapid career growth.</p>
+          </div>
+
+          <div class="my-auto -rotate-90 transform origin-center whitespace-nowrap">
+            <span class="text-xs font-black text-teal-700/30 tracking-widest uppercase">GOOD LUCK ALI!</span>
+          </div>
+
+          <div class="text-[7px] text-slate-400">
+            Qty: 1 Special Friend<br>
+            Ref: 2024-ALI
+          </div>
+        </div>
+
+
+        <!-- ================= 3. BOTTOM CLOSURE SECTION ================= -->
+        <!-- Bottom Panel Closure (Attaches to Back Panel W2) -->
+        <div class="absolute border-l-2 border-r-2 border-red-600 border-t border-dashed border-blue-600 bg-teal-800 text-white flex flex-col justify-center items-center px-2 text-center"
+             style="top: 680px; left: 283px; width: 150px; height: 95px;">
+          <div class="text-[10px] font-bold tracking-wider uppercase">Farewellin 500mg</div>
+          <div class="text-[8px] text-teal-200">Batch #260930</div>
+        </div>
+
+        <!-- Bottom Tuck Flap (Attaches to Bottom Closure) -->
+        <div class="absolute border-b-2 border-l-2 border-r-2 border-red-600 rounded-b-xl bg-slate-50 flex items-center justify-center text-[9px] text-slate-400 select-none"
+             style="top: 775px; left: 283px; width: 150px; height: 55px;">
+          Bottom Tuck Flap (15mm)
+        </div>
+
+        <!-- Bottom Dust Flap 1 (Left of Bottom Closure) -->
+        <div class="absolute border-b-2 border-l-2 border-t-2 border-red-600 bg-slate-100 flex items-center justify-center text-[8px] text-slate-400"
+             style="top: 680px; left: 188px; width: 95px; height: 71px; border-bottom-left-radius: 8px; border-top-left-radius: 8px;">
+          Dust Flap
+        </div>
+
+        <!-- Bottom Dust Flap 2 (Right of Bottom Closure) -->
+        <div class="absolute border-b-2 border-r-2 border-t-2 border-red-600 bg-slate-100 flex items-center justify-center text-[8px] text-slate-400"
+             style="top: 680px; left: 433px; width: 95px; height: 71px; border-bottom-right-radius: 8px; border-top-right-radius: 8px;">
+          <span class="-rotate-90">Dust</span>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Footer Specs Legend -->
+    <div class="border-t pt-2 flex justify-between items-center text-[9px] text-slate-500 font-mono">
+      <div>DIMENSIONS: 40 (W) x 25 (D) x 140 (H) mm</div>
+      <div>BATCH: 260930 | MFG: 01/08/2024 | EXP: 12/10/2026</div>
+      <div>REVERSE TUCK END (RTE)</div>
+    </div>
+
+  </div>
+
+  <!-- PDF Generation Script -->
+  <script>
+    async function generatePDF() {
+      const btn = document.getElementById('download-btn');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '⏳ Generating PDF...';
+      btn.disabled = true;
+
+      try {
+        const { jsPDF } = window.jspdf;
+        const element = document.getElementById('a4-container');
+
+        // Render HTML element to Canvas with High DPI Scale
+        const canvas = await html2canvas(element, {
+          scale: 3, // High quality output
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#ffffff'
+        });
+
+        const imgData = canvas.toDataURL('image/jpeg', 1.0);
+        
+        // Initialize A4 PDF (210mm x 297mm)
+        const pdf = new jsPDF('portrait', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+
+        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save('Ali_Farewell_Packaging_Dieline.pdf');
+
+      } catch (err) {
+        alert('Error generating PDF: ' + err.message);
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+          </html>
+  
